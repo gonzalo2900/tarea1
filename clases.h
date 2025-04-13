@@ -6,7 +6,7 @@
 using namespace std;
 
 class Item {
-private:
+protected:
     int id;
     int nivelTaxonomico;
     int tipo;
