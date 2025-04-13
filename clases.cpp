@@ -26,7 +26,7 @@ PreguntaVF::PreguntaVF(int id, int nivelTaxonomico, string texto, bool respuesta
 }
 
 void PreguntaVF::mostrar() {
-    cout << "ID: " << id << " [VF] " << texto << endl;
+    cout << "ID: " << getItemId() << " [VF] " << getItemTexto() << endl;
     cout << "Respuesta: " << (respuestaCorrecta ? "Verdadero" : "Falso") << endl;
     if (!respuestaCorrecta) {
         cout << "Justificación: " << justificacion << endl;
@@ -41,7 +41,7 @@ PreguntaAlternativa::PreguntaAlternativa(int id, int nivelTaxonomico, string tex
 }
 
 void PreguntaAlternativa::mostrar() {
-    cout << "ID: " << id << " [Alternativa] " << texto << endl;
+    cout << "ID: " << getItemId() << " [Alternativa] " << getItemTexto() << endl;
     for (size_t i = 0; i < alternativas.size(); ++i) {
         cout << i + 1 << ". " << alternativas[i];
         if (i == correcta) cout << " (Correcta)";

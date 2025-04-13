@@ -6,7 +6,7 @@
 using namespace std;
 
 class Item {
-protected:
+private:
     int id;
     int nivelTaxonomico;
     int tipo;
@@ -14,6 +14,9 @@ protected:
 
 public:
     Item(int id, int nivelTaxonomico, int tipo, string texto);
+    int getItemId() const { return id; }
+    string getItemTexto() const { return texto; }
+    int getItemTipo() const { return tipo; }
     virtual ~Item();
 
     int getId();
