@@ -1,77 +1,94 @@
-#include "clases.h"
 #include <iostream>
+#include "clases.h"
 using namespace std;
 
-// --- Métodos Item ---
-Item::Item(int id, int nivelTaxonomico, int tipo, string texto) {
+//
+// IMPLEMENTACIÓN DE LA CLASE BASE: Item
+//
+Item::Item(int id, int nivel_taxonomico, int categoria, string enunciado) {
     this->id = id;
-    this->nivelTaxonomico = nivelTaxonomico;
-    this->tipo = tipo;
-    this->texto = texto;
+    this->nivel_taxonomico = nivel_taxonomico;
+    this->categoria = categoria;
+    this->enunciado = enunciado;
 }
 
 Item::~Item() {}
 
-int Item::getId() { return id; }
-int Item::getNivelTaxonomico() { return nivelTaxonomico; }
-int Item::getTipo() { return tipo; }
-string Item::getTexto() { return texto; }
-void Item::setTexto(string nuevoTexto) { texto = nuevoTexto; }
+// Métodos getter
+int Item::get_id() { return id; }
+int Item::get_nivel_taxonomico() { return nivel_taxonomico; }
+int Item::get_categoria() { return categoria; }
+string Item::get_enunciado() { return enunciado; }
 
-// --- PreguntaVF ---
-PreguntaVF::PreguntaVF(int id, int nivelTaxonomico, string texto, bool respuesta, string justificacion)
-: Item(id, nivelTaxonomico, 1, texto) {
-    this->respuestaCorrecta = respuesta;
+// Método setter
+void Item::set_enunciado(string nuevo_enunciado) {
+    enunciado = nuevo_enunciado;
+}
+
+//
+// IMPLEMENTACIÓN DE: PreguntaVerdaderoFalso
+//
+PreguntaVerdaderoFalso::PreguntaVerdaderoFalso(int id, int nivel_taxonomico, string enunciado, bool respuesta, string justificacion)
+    : Item(id, nivel_taxonomico, 1, enunciado) {
+    this->respuesta_correcta = respuesta;
     this->justificacion = justificacion;
 }
 
-void PreguntaVF::mostrar() {
-    cout << "ID: " << id << " [VF] " << texto << endl;
-    cout << "Respuesta: " << (respuestaCorrecta ? "Verdadero" : "Falso") << endl;
-    if (!respuestaCorrecta) {
+void PreguntaVerdaderoFalso::mostrar() {
+    cout << "ID: " << get_id() << " [Verdadero/Falso] Nivel: " << get_nivel_taxonomico() << endl;
+    cout << "Enunciado: " << get_enunciado() << endl;
+    cout << "Respuesta correcta: " << (respuesta_correcta ? "Verdadero" : "Falso") << endl;
+    if (!respuesta_correcta) {
         cout << "Justificación: " << justificacion << endl;
     }
+    cout << "--------------------------" << endl;
 }
 
-// --- PreguntaAlternativa ---
-PreguntaAlternativa::PreguntaAlternativa(int id, int nivelTaxonomico, string texto, vector<string> alternativas, int correcta)
-: Item(id, nivelTaxonomico, 2, texto) {
+//
+// IMPLEMENTACIÓN DE: PreguntaAlternativa
+//
+PreguntaAlternativa::PreguntaAlternativa(int id, int nivel_taxonomico, string enunciado, vector<string> alternativas, int correcta)
+    : Item(id, nivel_taxonomico, 2, enunciado) {
     this->alternativas = alternativas;
     this->correcta = correcta;
 }
 
 void PreguntaAlternativa::mostrar() {
-    cout << "ID: " << id << " [Alternativa] " << texto << endl;
+    cout << "ID: " << get_id() << " [Alternativa] Nivel: " << get_nivel_taxonomico() << endl;
+    cout << "Enunciado: " << get_enunciado() << endl;
     for (size_t i = 0; i < alternativas.size(); ++i) {
         cout << i + 1 << ". " << alternativas[i];
         if (i == correcta) cout << " (Correcta)";
         cout << endl;
     }
+    cout << "--------------------------" << endl;
 }
 
-// --- SistemaEvaluacion ---
-SistemaEvaluacion::SistemaEvaluacion() {
-    nextId = 1;
+//
+// IMPLEMENTACIÓN DE: Sistema_Evaluacion
+//
+Sistema_Evaluacion::Sistema_Evaluacion() {
+    next_id = 1;
 }
 
-SistemaEvaluacion::~SistemaEvaluacion() {
+Sistema_Evaluacion::~Sistema_Evaluacion() {
     for (Item* item : items) {
         delete item;
     }
 }
 
-void SistemaEvaluacion::crearItem() {
+void Sistema_Evaluacion::crear_item() {
     int tipo;
-    cout << "\nTipo de pregunta (1: VF, 2: Alternativa): ";
+    cout << "Selecciona tipo de pregunta (1: Verdadero/Falso, 2: Alternativa): ";
     cin >> tipo;
 
-    int nivel;
-    string texto;
-    cout << "Nivel taxonómico (1-5): ";
-    cin >> nivel;
     cin.ignore();
-    cout << "Ingrese el texto de la pregunta: ";
-    getline(cin, texto);
+    string enunciado;
+    int nivel;
+    cout << "Ingrese enunciado: ";
+    getline(cin, enunciado);
+    cout << "Ingrese nivel taxonomico (1 a 5): ";
+    cin >> nivel;
 
     if (tipo == 1) {
         bool respuesta;
@@ -80,149 +97,133 @@ void SistemaEvaluacion::crearItem() {
         cin >> respuesta;
         cin.ignore();
         if (!respuesta) {
-            cout << "Ingrese justificación: ";
+            cout << "Ingrese justificacion: ";
             getline(cin, justificacion);
         }
-        items.push_back(new PreguntaVF(nextId++, nivel, texto, respuesta, justificacion));
+        items.push_back(new PreguntaVerdaderoFalso(next_id++, nivel, enunciado, respuesta, justificacion));
     } else if (tipo == 2) {
-        int n;
-        vector<string> alternativas;
+        int cantidad;
         cout << "Cantidad de alternativas: ";
-        cin >> n;
+        cin >> cantidad;
         cin.ignore();
-        for (int i = 0; i < n; ++i) {
+        vector<string> alternativas;
+        for (int i = 0; i < cantidad; ++i) {
             string alt;
-            cout << "Alternativa " << i + 1 << ": ";
+            cout << "Alternativa " << (i + 1) << ": ";
             getline(cin, alt);
             alternativas.push_back(alt);
         }
         int correcta;
-        cout << "Índice de la correcta (1-" << n << "): ";
+        cout << "Número de la alternativa correcta (1 a " << cantidad << "): ";
         cin >> correcta;
-        items.push_back(new PreguntaAlternativa(nextId++, nivel, texto, alternativas, correcta - 1));
+        items.push_back(new PreguntaAlternativa(next_id++, nivel, enunciado, alternativas, correcta - 1));
+    } else {
+        cout << "Tipo no válido." << endl;
     }
 }
 
-
-
-
-
-void SistemaEvaluacion::mostrarItems() {
+void Sistema_Evaluacion::mostrar_items() {
     for (Item* item : items) {
         item->mostrar();
-        cout << "------------------" << endl;
     }
 }
 
-
-
-
-
-
-void SistemaEvaluacion::actualizarItem() {
+void Sistema_Evaluacion::actualizar_item() {
     int id;
     cout << "Ingrese ID del ítem a actualizar: ";
     cin >> id;
-    cin.ignore();
-
     for (Item* item : items) {
-        if (item->getId() == id) {
-            string nuevoTexto;
-            cout << "Ingrese el nuevo texto de la pregunta: ";
-            getline(cin, nuevoTexto);
-            item->setTexto(nuevoTexto);
-            cout << "Texto actualizado correctamente.\n";
+        if (item->get_id() == id) {
+            cin.ignore();
+            string nuevo_enunciado;
+            cout << "Ingrese nuevo enunciado: ";
+            getline(cin, nuevo_enunciado);
+            item->set_enunciado(nuevo_enunciado);
+            cout << "Actualizado." << endl;
             return;
         }
     }
-    cout << "Ítem no encontrado.\n";
+    cout << "Ítem no encontrado." << endl;
 }
 
-void SistemaEvaluacion::borrarItem() {
+void Sistema_Evaluacion::borrar_item() {
     int id;
-    cout << "Ingrese ID del ítem a borrar: ";
+    cout << "Ingrese ID del ítem a eliminar: ";
     cin >> id;
-
     for (auto it = items.begin(); it != items.end(); ++it) {
-        if ((*it)->getId() == id) {
+        if ((*it)->get_id() == id) {
             delete *it;
             items.erase(it);
-            cout << "Ítem borrado correctamente.\n";
+            cout << "Eliminado correctamente." << endl;
             return;
         }
     }
-    cout << "Ítem no encontrado.\n";
+    cout << "Ítem no encontrado." << endl;
 }
 
-void SistemaEvaluacion::consultarItem() {
+void Sistema_Evaluacion::consultar_item() {
     int id;
     cout << "Ingrese ID del ítem a consultar: ";
     cin >> id;
-
     for (Item* item : items) {
-        if (item->getId() == id) {
+        if (item->get_id() == id) {
             item->mostrar();
             return;
         }
     }
-    cout << "Ítem no encontrado.\n";
+    cout << "Ítem no encontrado." << endl;
 }
 
-void SistemaEvaluacion::buscarItemsPorTaxonomia() {
+void Sistema_Evaluacion::buscar_items_por_taxonomia() {
     int nivel;
-    cout << "Ingrese el nivel taxonómico (1-5): ";
+    cout << "Ingrese nivel taxonómico a buscar: ";
     cin >> nivel;
-
     for (Item* item : items) {
-        if (item->getNivelTaxonomico() == nivel) {
+        if (item->get_nivel_taxonomico() == nivel) {
             item->mostrar();
-            cout << "------------------" << endl;
         }
     }
 }
 
-void SistemaEvaluacion::generarEvaluacion() {
+void Sistema_Evaluacion::generar_evaluacion() {
     int cantidad;
-    cout << "¿Cuántas preguntas desea incluir en la evaluación?: ";
+    cout << "Cantidad de preguntas para evaluación: ";
     cin >> cantidad;
-
     if (cantidad > items.size()) {
-        cout << "No hay suficientes preguntas disponibles.\n";
+        cout << "No hay suficientes ítems." << endl;
         return;
     }
-
-    cout << "\n--- Evaluación Generada ---\n";
     for (int i = 0; i < cantidad; ++i) {
         items[i]->mostrar();
-        cout << "------------------" << endl;
     }
 }
 
-void SistemaEvaluacion::menu() {
+void Sistema_Evaluacion::menu() {
     int opcion;
     do {
-        cout << "\n===== MENÚ =====\n";
+        cout << "\n===== SISTEMA DE EVALUACION =====\n";
         cout << "1. Crear ítem\n";
-        cout << "2. Mostrar ítems\n";
+        cout << "2. Mostrar todos los ítems\n";
         cout << "3. Actualizar ítem\n";
         cout << "4. Borrar ítem\n";
-        cout << "5. Consultar ítem\n";
-        cout << "6. Buscar por nivel taxonómico\n";
+        cout << "5. Consultar ítem por ID\n";
+        cout << "6. Buscar ítems por nivel taxonómico\n";
         cout << "7. Generar evaluación\n";
-        cout << "0. Salir\n\n";
+        cout << "0. Salir\n";
         cout << "Seleccione una opción: ";
         cin >> opcion;
 
         switch (opcion) {
-            case 1: crearItem(); break;
-            case 2: mostrarItems(); break;
-            case 3: actualizarItem(); break;
-            case 4: borrarItem(); break;
-            case 5: consultarItem(); break;
-            case 6: buscarItemsPorTaxonomia(); break;
-            case 7: generarEvaluacion(); break;
-            case 0: cout << "Saliendo...\n"; break;
-            default: cout << "Opción inválida.\n";
+            case 1: crear_item(); break;
+            case 2: mostrar_items(); break;
+            case 3: actualizar_item(); break;
+            case 4: borrar_item(); break;
+            case 5: consultar_item(); break;
+            case 6: buscar_items_por_taxonomia(); break;
+            case 7: generar_evaluacion(); break;
+            case 0: cout << "Saliendo del sistema..." << endl; break;
+            default: cout << "Opción no válida." << endl;
         }
+
     } while (opcion != 0);
 }
