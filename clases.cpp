@@ -121,7 +121,7 @@ void Sistema_Evaluacion::crear_item() {
     int nivel, tiempo;
     cout << "Ingrese enunciado: ";
     getline(cin, enunciado);
-    cout << "Ingrese nivel taxonómico (1 a 5): ";
+    cout << "Ingrese nivel taxonómico (1 a 6): ";
     nivel = leer_entero();
     cout << "Ingrese tiempo estimado de respuesta (en minutos): ";
     tiempo = leer_entero();
